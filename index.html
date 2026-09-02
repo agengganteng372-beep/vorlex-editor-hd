@@ -36,7 +36,6 @@
         border: none;
         font-size: 16px;
     }
-    .btn-upload:hover { opacity: 0.9; }
 
     .editor {
         display: none;
@@ -46,7 +45,6 @@
     @media(max-width: 900px){
         .editor { grid-template-columns: 1fr; }
     }
-
     .tools {
         background: #1a1a2e;
         padding: 20px;
@@ -55,15 +53,9 @@
         max-height: 90vh;
         overflow-y: auto;
     }
-
     .tool-group { margin-bottom: 20px; }
     .tool-group h3 { color: #667eea; font-size: 14px; margin-bottom: 10px; }
-    .tool-group label { font-size: 12px; color: #aaa; display: block; margin-bottom: 5px; }
-    .tool-group input[type=range],
-    .tool-group input[type=text],
-    .tool-group input[type=number],
-    .tool-group select,
-    .tool-group input[type=color] {
+    .tool-group input[type=range],.tool-group input[type=text],.tool-group select,.tool-group input[type=color] {
         width: 100%;
         padding: 8px;
         margin-bottom: 8px;
@@ -72,7 +64,6 @@
         color: white;
         border-radius: 6px;
     }
-
     .tool-group button {
         width: 100%;
         padding: 10px;
@@ -83,10 +74,8 @@
         border-radius: 8px;
         cursor: pointer;
         font-weight: 500;
-        font-size: 12px;
     }
     .tool-group button:hover { background: #667eea; }
-
     .btn-hd { background: linear-gradient(90deg, #f59e0b, #ef4444)!important; }
     .btn-text { background: linear-gradient(90deg, #06b6d4, #3b82f6)!important; }
     .btn-crop { background: linear-gradient(90deg, #ec4899, #a855f7)!important; }
@@ -101,24 +90,33 @@
         text-align: center;
         overflow: auto;
         position: relative;
-        max-height: 90vh;
     }
-
-    #canvas { 
-        max-width: 100%; 
-        max-height: 80vh;
-        border-radius: 10px; 
-        cursor: crosshair; 
-        display: block;
+    #canvasContainer {
+        position: relative;
+        display: inline-block;
         margin: 0 auto;
     }
-
+    #canvas { 
+        max-width: 100%; 
+        border-radius: 10px; 
+        cursor: crosshair;
+        display: block;
+    }
     .crop-overlay { 
         position: absolute; 
         border: 2px dashed #fff; 
         background: rgba(0,0,0,0.3); 
         display: none; 
-        pointer-events: none; 
+        pointer-events: none;
+        box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+    }
+    .hint-box {
+        background: #2a2a3e;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 10px;
+        font-size: 12px;
+        color: #aaa;
     }
 
     .btn-download {
@@ -133,13 +131,17 @@
         font-size: 16px;
         margin-top: 15px;
     }
-    .btn-download:hover { background: #16a34a; }
-
     .hd-badge { color: #fbbf24; font-size: 12px; }
     .text-badge { color: #38bdf8; font-size: 12px; }
     .crop-badge { color: #f472b6; font-size: 12px; }
-
-    .loading { display: none; color: #fbbf24; text-align: center; }
+    .undo-redo {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    .undo-redo button {
+        flex: 1;
+    }
 </style>
 </head>
 <body>
@@ -158,6 +160,11 @@
 
         <div class="editor" id="editor">
             <div class="tools">
+                <div class="tool-group undo-redo">
+                    <button onclick="undo()">↶ Undo</button>
+                    <button onclick="redo()">↷ Redo</button>
+                </div>
+
                 <div class="tool-group">
                     <h3 class="crop-badge">✂️ CROP GAMBAR</h3>
                     <button class="btn-crop" onclick="cropSquare()">Crop Persegi 1:1</button>
@@ -170,12 +177,10 @@
                 <div class="tool-group">
                     <h3 class="text-badge">📝 TAMBAH TEKS</h3>
                     <input type="text" id="textInput" placeholder="Ketik teks di sini..." value="VORLEX">
-                    <label>Warna Teks</label>
                     <div class="row">
                         <input type="color" id="textColor" value="#ffffff">
                         <input type="number" id="textSize" value="40" min="10" max="200">
                     </div>
-                    <label>Font</label>
                     <select id="textFont">
                         <option value="Poppins">Poppins</option>
                         <option value="Arial">Arial</option>
@@ -183,8 +188,8 @@
                         <option value="Times New Roman">Times</option>
                     </select>
                     <div class="row">
-                        <button onclick="toggleBold()">B</button>
-                        <button onclick="toggleShadow()">Shadow</button>
+                        <button onclick="toggleTextBold()">B</button>
+                        <button onclick="toggleTextShadow()">Shadow</button>
                     </div>
                     <button class="btn-text" onclick="addText()">Tambah Teks Baru</button>
                     <button onclick="clearTexts()">Hapus Semua Teks</button>
@@ -197,7 +202,7 @@
                 </div>
 
                 <div class="tool-group">
-                    <h3>🎨 FILTER CEPAT</h3>
+                    <h3>FILTER CEPAT</h3>
                     <button onclick="applyFilter('none')">Original</button>
                     <button onclick="applyFilter('grayscale(1)')">Hitam Putih</button>
                     <button onclick="applyFilter('sepia(1)')">Sepia</button>
@@ -205,7 +210,7 @@
                 </div>
 
                 <div class="tool-group">
-                    <h3>⚙️ PENGATURAN</h3>
+                    <h3>PENGATURAN</h3>
                     <label>Kecerahan</label>
                     <input type="range" id="brightness" min="0" max="200" value="100" oninput="updateFilters()">
                     <label>Kontras</label>
@@ -219,26 +224,30 @@
                 </div>
 
                 <div class="tool-group">
-                    <h3>🔄 AKSI</h3>
+                    <h3>AKSI</h3>
                     <button onclick="rotate()">Putar 90°</button>
                     <button onclick="flip()">Balik Horizontal</button>
                     <button onclick="reset()">Reset Semua</button>
                 </div>
 
-                <button class="btn-download" onclick="download()">⬇️ DOWNLOAD HD</button>
+                <button class="btn-download" onclick="download()">📥 DOWNLOAD HD</button>
             </div>
 
             <div class="preview" id="previewBox">
-                <canvas id="canvas"></canvas>
-                <div class="crop-overlay" id="cropOverlay"></div>
-                <p style="color:#666; font-size:12px; margin-top:10px;">Tip: Klik & drag teks untuk memindahkan</p>
+                <div id="canvasContainer">
+                    <canvas id="canvas"></canvas>
+                    <div class="crop-overlay" id="cropOverlay"></div>
+                </div>
+                <div class="hint-box">
+                    💡 Klik & drag teks untuk memindahkan | Fitur undo/redo tersedia
+                </div>
             </div>
         </div>
     </div>
 
 <script>
 let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d');
+let ctx = canvas.getContext('2d', { willReadFrequently: true });
 let img = new Image();
 let originalImg = new Image();
 let rotation = 0;
@@ -253,37 +262,118 @@ let textShadow = true;
 
 // Crop system
 let cropActive = false;
-let cropStartX = null, cropStartY = null, cropEndX = null, cropEndY = null;
+let cropStartX, cropStartY, cropEndX, cropEndY;
 let cropOverlay = document.getElementById('cropOverlay');
+let canvasContainer = document.getElementById('canvasContainer');
 
-// Upload file handler
+// History for undo/redo
+let history = [];
+let historyStep = -1;
+const MAX_HISTORY = 20;
+
+// Helper: Save state to history
+function saveHistory() {
+    historyStep++;
+    if (historyStep < history.length) {
+        history.length = historyStep;
+    }
+    history.push(serializeState());
+    if (history.length > MAX_HISTORY) {
+        history.shift();
+        historyStep--;
+    }
+}
+
+// Helper: Serialize current state
+function serializeState() {
+    return {
+        imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        rotation: rotation,
+        flipH: flipH,
+        texts: JSON.parse(JSON.stringify(texts)),
+        filters: {
+            brightness: document.getElementById('brightness').value,
+            contrast: document.getElementById('contrast').value,
+            saturate: document.getElementById('saturate').value,
+            blur: document.getElementById('blur').value,
+            sharpen: document.getElementById('sharpen').value
+        }
+    };
+}
+
+// Helper: Restore state from history
+function restoreState(state) {
+    canvas.width = state.canvasWidth;
+    canvas.height = state.canvasHeight;
+    ctx.putImageData(state.imageData, 0, 0);
+    rotation = state.rotation;
+    flipH = state.flipH;
+    texts = JSON.parse(JSON.stringify(state.texts));
+    document.getElementById('brightness').value = state.filters.brightness;
+    document.getElementById('contrast').value = state.filters.contrast;
+    document.getElementById('saturate').value = state.filters.saturate;
+    document.getElementById('blur').value = state.filters.blur;
+    document.getElementById('sharpen').value = state.filters.sharpen;
+    updateFilters();
+}
+
+function undo() {
+    if (historyStep > 0) {
+        historyStep--;
+        restoreState(history[historyStep]);
+    }
+}
+
+function redo() {
+    if (historyStep < history.length - 1) {
+        historyStep++;
+        restoreState(history[historyStep]);
+    }
+}
+
+function toggleTextBold() {
+    textBold = !textBold;
+    draw();
+}
+
+function toggleTextShadow() {
+    textShadow = !textShadow;
+    draw();
+}
+
 document.getElementById('fileInput').addEventListener('change', function(e){
     let file = e.target.files[0];
-    if(!file) return;
+    if (!file) return;
     
     let reader = new FileReader();
     reader.onload = function(event){
-        originalImg.onload = function(){
-            img.src = originalImg.src;
-            img.onload = function(){
-                canvas.width = img.width;
-                canvas.height = img.height;
-                draw();
-                document.getElementById('uploadBox').style.display = 'none';
-                document.getElementById('editor').style.display = 'grid';
-            }
-        }
         originalImg.src = event.target.result;
+        img.src = event.target.result;
+        img.onload = function(){
+            canvas.width = img.width;
+            canvas.height = img.height;
+            history = [];
+            historyStep = -1;
+            rotation = 0;
+            flipH = 1;
+            texts = [];
+            saveHistory();
+            draw();
+            document.getElementById('uploadBox').style.display = 'none';
+            document.getElementById('editor').style.display = 'grid';
+        }
     }
     reader.readAsDataURL(file);
 });
 
 function draw(){
-    if(!canvas.width || !canvas.height) return;
-    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
+    
+    // Draw image with transforms
     ctx.save();
     ctx.translate(canvas.width/2, canvas.height/2);
     ctx.rotate(rotation * Math.PI / 180);
@@ -291,9 +381,11 @@ function draw(){
     ctx.drawImage(img, -img.width/2, -img.height/2);
     ctx.restore();
 
-    // Draw all texts
-    texts.forEach((t, idx) => {
-        ctx.font = `${t.bold ? 'bold ' : ''}${t.size}px ${t.font}`;
+    // Draw all texts (without transforms for accurate positioning)
+    texts.forEach((t, index) => {
+        let fontSize = t.size;
+        let fontWeight = t.bold ? 'bold ' : '';
+        ctx.font = `${fontWeight}${fontSize}px ${t.font}`;
         ctx.fillStyle = t.color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -310,70 +402,73 @@ function draw(){
         ctx.fillText(t.text, t.x, t.y);
         ctx.shadowColor = 'transparent';
         
-        // Highlight selected text
-        if(idx === selectedText){
+        // Draw selection box if selected
+        if(selectedText === index) {
             ctx.strokeStyle = '#667eea';
             ctx.lineWidth = 2;
-            ctx.strokeRect(t.x - t.size, t.y - t.size/2, t.size * 2, t.size);
+            ctx.strokeRect(t.x - fontSize, t.y - fontSize/2, fontSize*2, fontSize);
         }
     });
 }
 
 // CROP FUNCTIONS
 function cropSquare(){
-    let size = Math.min(canvas.width, canvas.height);
-    let x = (canvas.width - size) / 2;
-    let y = (canvas.height - size) / 2;
+    let size = Math.min(img.width, img.height);
+    let x = (img.width - size) / 2;
+    let y = (img.height - size) / 2;
     doCrop(x, y, size, size);
+    saveHistory();
 }
 
 function cropRatio(w, h){
-    let canvasRatio = canvas.width / canvas.height;
+    let imgRatio = img.width / img.height;
     let targetRatio = w / h;
     let newW, newH, x, y;
 
-    if(canvasRatio > targetRatio){
-        newH = canvas.height;
+    if(imgRatio > targetRatio){
+        newH = img.height;
         newW = newH * targetRatio;
-        x = (canvas.width - newW) / 2;
+        x = (img.width - newW) / 2;
         y = 0;
     } else {
-        newW = canvas.width;
+        newW = img.width;
         newH = newW / targetRatio;
         x = 0;
-        y = (canvas.height - newH) / 2;
+        y = (img.height - newH) / 2;
     }
     doCrop(x, y, newW, newH);
+    saveHistory();
 }
 
 function enableCustomCrop(){
     cropActive = true;
-    canvas.style.cursor = 'crosshair';
     alert('Mode Crop Aktif! Klik & drag di gambar untuk pilih area');
+    canvas.style.cursor = 'crosshair';
 }
 
 function doCrop(x, y, w, h){
-    if(w <= 0 || h <= 0) return;
-    
     let tempCanvas = document.createElement('canvas');
     let tempCtx = tempCanvas.getContext('2d');
     tempCanvas.width = w;
     tempCanvas.height = h;
-    tempCtx.drawImage(canvas, x, y, w, h, 0, 0, w, h);
+    tempCtx.drawImage(img, x, y, w, h, 0, 0, w, h);
 
-    canvas.width = w;
-    canvas.height = h;
-    ctx.drawImage(tempCanvas, 0, 0);
-
-    // Reset text positions ke center
-    texts.forEach(t => {
-        t.x = w / 2;
-        t.y = h / 2;
-    });
-    
-    draw();
-    cropActive = false;
-    canvas.style.cursor = 'crosshair';
+    img.src = tempCanvas.toDataURL();
+    img.onload = function() {
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0);
+        
+        // Scale text positions proportionally
+        texts.forEach(t => {
+            t.x = t.x * (w / (img.width + w - w)) || canvas.width / 2;
+            t.y = t.y * (h / (img.height + h - h)) || canvas.height / 2;
+        });
+        
+        draw();
+        tempCanvas = null;
+        tempCtx = null;
+    };
 }
 
 function applyCrop(){
@@ -383,35 +478,33 @@ function applyCrop(){
         let w = Math.abs(cropStartX - cropEndX);
         let h = Math.abs(cropStartY - cropEndY);
         
-        if(w > 10 && h > 10){
+        if(w > 0 && h > 0) {
             doCrop(x, y, w, h);
             cropOverlay.style.display = 'none';
-            cropStartX = null;
-            cropStartY = null;
-            cropEndX = null;
-            cropEndY = null;
-        } else {
-            alert('Pilih area yang lebih besar!');
+            cropActive = false;
+            canvas.style.cursor = 'default';
+            saveHistory();
         }
     }
 }
 
-// Canvas event listeners
+// Mouse/Touch events
 canvas.addEventListener('mousedown', (e) => {
-    if(!img.src) return;
-    
     let rect = canvas.getBoundingClientRect();
-    let x = (e.clientX - rect.left) * (canvas.width / rect.width);
-    let y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    let scaleX = canvas.width / rect.width;
+    let scaleY = canvas.height / rect.height;
+    let x = (e.clientX - rect.left) * scaleX;
+    let y = (e.clientY - rect.top) * scaleY;
     
     if(cropActive){
         cropStartX = x;
         cropStartY = y;
     } else {
-        // Text drag - improved hitbox
+        // Check text click
         selectedText = null;
         texts.forEach((t, i) => {
-            if(Math.abs(x - t.x) < t.size * 1.5 && Math.abs(y - t.y) < t.size * 1.5){
+            let dist = Math.sqrt(Math.pow(x - t.x, 2) + Math.pow(y - t.y, 2));
+            if(dist < t.size * 1.5){
                 selectedText = i;
                 dragging = true;
             }
@@ -420,16 +513,15 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 canvas.addEventListener('mousemove', (e) => {
-    if(!img.src) return;
-    
     let rect = canvas.getBoundingClientRect();
-    let x = (e.clientX - rect.left) * (canvas.width / rect.width);
-    let y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    let scaleX = canvas.width / rect.width;
+    let scaleY = canvas.height / rect.height;
+    let x = (e.clientX - rect.left) * scaleX;
+    let y = (e.clientY - rect.top) * scaleY;
     
-    if(cropActive && cropStartX !== null){
+    if(cropActive && cropStartX){
         cropEndX = x;
         cropEndY = y;
-
         cropOverlay.style.display = 'block';
         cropOverlay.style.left = Math.min(cropStartX, cropEndX) + 'px';
         cropOverlay.style.top = Math.min(cropStartY, cropEndY) + 'px';
@@ -437,33 +529,71 @@ canvas.addEventListener('mousemove', (e) => {
         cropOverlay.style.height = Math.abs(cropStartY - cropEndY) + 'px';
     }
     else if(dragging && selectedText !== null){
-        texts[selectedText].x = x;
-        texts[selectedText].y = y;
+        texts[selectedText].x = Math.max(0, Math.min(canvas.width, x));
+        texts[selectedText].y = Math.max(0, Math.min(canvas.height, y));
         draw();
     }
 });
 
 canvas.addEventListener('mouseup', () => {
     dragging = false;
+    if(selectedText !== null) {
+        saveHistory();
+    }
+    selectedText = null;
+    cropStartX = null;
+    cropStartY = null;
 });
 
-canvas.addEventListener('mouseout', () => {
-    dragging = false;
+// Touch events for mobile
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    let touch = e.touches[0];
+    let mouseEvent = new MouseEvent('mousedown', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
 });
 
-// TEXT FUNCTIONS
-function toggleBold(){
-    textBold = !textBold;
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    let touch = e.touches[0];
+    let mouseEvent = new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+});
+
+canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    let mouseEvent = new MouseEvent('mouseup', {});
+    canvas.dispatchEvent(mouseEvent);
+});
+
+function updateFilters(){
+    let b = document.getElementById('brightness').value;
+    let c = document.getElementById('contrast').value;
+    let s = document.getElementById('saturate').value;
+    let bl = document.getElementById('blur').value;
+    let sh = document.getElementById('sharpen').value;
+    canvas.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) blur(${bl}px)`;
 }
 
-function toggleShadow(){
-    textShadow = !textShadow;
+function applyFilter(filter){
+    canvas.style.filter = filter;
+    document.getElementById('brightness').value = 100;
+    document.getElementById('contrast').value = 100;
+    document.getElementById('saturate').value = 100;
+    document.getElementById('blur').value = 0;
+    document.getElementById('sharpen').value = 0;
+    saveHistory();
 }
 
 function addText(){
     let text = document.getElementById('textInput').value;
-    if(!text.trim()) return alert('Masukkan teks terlebih dahulu!');
-    
+    if(!text) return;
     texts.push({
         text: text,
         x: canvas.width / 2,
@@ -475,39 +605,22 @@ function addText(){
         shadow: textShadow
     });
     draw();
+    saveHistory();
 }
 
 function clearTexts(){
     texts = [];
     draw();
+    saveHistory();
 }
 
-// FILTER FUNCTIONS
-function updateFilters(){
-    let b = document.getElementById('brightness').value;
-    let c = document.getElementById('contrast').value;
-    let s = document.getElementById('saturate').value;
-    let bl = document.getElementById('blur').value;
-    let sh = document.getElementById('sharpen').value;
-    
-    canvas.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) blur(${bl}px)`;
-}
-
-function applyFilter(filter){
-    canvas.style.filter = filter;
-    document.getElementById('brightness').value = 100;
-    document.getElementById('contrast').value = 100;
-    document.getElementById('saturate').value = 100;
-    document.getElementById('blur').value = 0;
-    document.getElementById('sharpen').value = 0;
-}
-
-// HD FUNCTIONS
 function enhanceHD(){
     document.getElementById('brightness').value = 110;
     document.getElementById('contrast').value = 120;
     document.getElementById('saturate').value = 115;
+    document.getElementById('sharpen').value = 5;
     updateFilters();
+    saveHistory();
 }
 
 function upscale2x(){
@@ -523,25 +636,35 @@ function upscale2x(){
     canvas.height = tempCanvas.height;
     ctx.drawImage(tempCanvas, 0, 0);
     
-    // Scale text
-    texts.forEach(t => { 
-        t.x *= 2; 
-        t.y *= 2; 
-        t.size *= 2; 
-    });
-    draw();
+    // Scale text and image properly
+    let tempImg = new Image();
+    tempImg.src = img.src;
+    tempImg.onload = function() {
+        img = tempImg;
+        texts.forEach(t => { 
+            t.x *= 2; 
+            t.y *= 2; 
+            t.size = Math.round(t.size * 2); 
+        });
+        draw();
+    };
+    
+    tempCanvas = null;
+    tempCtx = null;
+    saveHistory();
 }
 
-// TRANSFORM FUNCTIONS
 function rotate(){
     rotation += 90;
     if(rotation >= 360) rotation = 0;
     draw();
+    saveHistory();
 }
 
 function flip(){
     flipH *= -1;
     draw();
+    saveHistory();
 }
 
 function reset(){
@@ -549,25 +672,28 @@ function reset(){
     flipH = 1;
     texts = [];
     img.src = originalImg.src;
-    canvas.width = img.width;
-    canvas.height = img.height;
-    applyFilter('none');
-    document.getElementById('brightness').value = 100;
-    document.getElementById('contrast').value = 100;
-    document.getElementById('saturate').value = 100;
-    document.getElementById('blur').value = 0;
-    document.getElementById('sharpen').value = 0;
-    draw();
+    img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        applyFilter('none');
+        document.getElementById('brightness').value = 100;
+        document.getElementById('contrast').value = 100;
+        document.getElementById('saturate').value = 100;
+        document.getElementById('blur').value = 0;
+        document.getElementById('sharpen').value = 0;
+        history = [];
+        historyStep = -1;
+        draw();
+        saveHistory();
+    };
 }
 
-// DOWNLOAD FUNCTION
 function download(){
-    if(!canvas.width) return alert('Upload gambar terlebih dahulu!');
-    
     let link = document.createElement('a');
-    link.download = 'vorlex-editor-' + Date.now() + '.png';
+    link.download = 'vorlex-hd.png';
     link.href = canvas.toDataURL('image/png', 1.0);
     link.click();
+    link = null;
 }
 </script>
 
