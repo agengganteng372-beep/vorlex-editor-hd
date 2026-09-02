@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VORLEX EDITOR HD - Edit Foto + Crop + Teks</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: #0f0f1a; color: white; }
+
+    header {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        padding: 15px 20px;
+        text-align: center;
+    }
+    header h1 { font-size: 24px; letter-spacing: 2px; }
+
+    .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+
+    .upload-box {
+        background: #1a1a2e;
+        padding: 40px;
+        border-radius: 15px;
+        text-align: center;
+        border: 2px dashed #667eea;
+        margin-bottom: 20px;
+    }
+    .upload-box input { display: none; }
+    .btn-upload {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        border: none;
+        font-size: 16px;
+    }
+    .btn-upload:hover { opacity: 0.9; }
+
+    .editor {
+        display: none;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+    }
+    @media(max-width: 900px){
+        .editor { grid-template-columns: 1fr; }
+    }
+
+    .tools {
+        background: #1a1a2e;
+        padding: 20px;
+        border-radius: 15px;
+        height: fit-content;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .tool-group { margin-bottom: 20px; }
+    .tool-group h3 { color: #667eea; font-size: 14px; margin-bottom: 10px; }
+    .tool-group label { font-size: 12px; color: #aaa; display: block; margin-bottom: 5px; }
+    .tool-group input[type=range],
+    .tool-group input[type=text],
+    .tool-group input[type=number],
+    .tool-group select,
+    .tool-group input[type=color] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 8px;
+        background: #2a2a3e;
+        border: 1px solid #3a3a4e;
+        color: white;
+        border-radius: 6px;
+    }
+
+    .tool-group button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: #2a2a3e;
+        border: none;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 12px;
+    }
+    .tool-group button:hover { background: #667eea; }
+
+    .btn-hd { background: linear-gradient(90deg, #f59e0b, #ef4444)!important; }
+    .btn-text { background: linear-gradient(90deg, #06b6d4, #3b82f6)!important; }
+    .btn-crop { background: linear-gradient(90deg, #ec4899, #a855f7)!important; }
+
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
+
+    .preview {
+        background: #1a1a2e;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        overflow: auto;
+        position: relative;
+        max-height: 90vh;
+    }
+
+    #canvas { 
+        max-width: 100%; 
+        max-height: 80vh;
+        border-radius: 10px; 
+        cursor: crosshair; 
+        display: block;
+        margin: 0 auto;
+    }
+
+    .crop-overlay { 
+        position: absolute; 
+        border: 2px dashed #fff; 
+        background: rgba(0,0,0,0.3); 
+        display: none; 
+        pointer-events: none; 
+    }
+
+    .btn-download {
+        width: 100%;
+        padding: 15px;
+        background: #22c55e;
+        border: none;
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 15px;
+    }
+    .btn-download:hover { background: #16a34a; }
+
+    .hd-badge { color: #fbbf24; font-size: 12px; }
+    .text-badge { color: #38bdf8; font-size: 12px; }
+    .crop-badge { color: #f472b6; font-size: 12px; }
+
+    .loading { display: none; color: #fbbf24; text-align: center; }
+</style>
+</head>
+<body>
+    <header>
+        <h1>⚡ VORLEX EDITOR HD</h1>
+        <p>Edit Foto + Crop + Teks Online Gratis</p>
+    </header>
+
+    <div class="container">
+        <div class="upload-box" id="uploadBox">
+            <h2>Pilih Foto Kamu</h2>
+            <p style="color:#aaa; margin: 15px 0;">JPG, PNG, WEBP - Max HD</p>
+            <label for="fileInput" class="btn-upload">UPLOAD GAMBAR</label>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="editor" id="editor">
+            <div class="tools">
+                <div class="tool-group">
+                    <h3 class="crop-badge">✂️ CROP GAMBAR</h3>
+                    <button class="btn-crop" onclick="cropSquare()">Crop Persegi 1:1</button>
+                    <button class="btn-crop" onclick="cropRatio(4,5)">Crop 4:5 IG</button>
+                    <button class="btn-crop" onclick="cropRatio(16,9)">Crop 16:9 YT</button>
+                    <button onclick="enableCustomCrop()">Crop Bebas - Drag</button>
+                    <button onclick="applyCrop()">Terapkan Crop</button>
+                </div>
+
+                <div class="tool-group">
+                    <h3 class="text-badge">📝 TAMBAH TEKS</h3>
+                    <input type="text" id="textInput" placeholder="Ketik teks di sini..." value="VORLEX">
+                    <label>Warna Teks</label>
+                    <div class="row">
+                        <input type="color" id="textColor" value="#ffffff">
+                        <input type="number" id="textSize" value="40" min="10" max="200">
+                    </div>
+                    <label>Font</label>
+                    <select id="textFont">
+                        <option value="Poppins">Poppins</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Times New Roman">Times</option>
+                    </select>
+                    <div class="row">
+                        <button onclick="toggleBold()">B</button>
+                        <button onclick="toggleShadow()">Shadow</button>
+                    </div>
+                    <button class="btn-text" onclick="addText()">Tambah Teks Baru</button>
+                    <button onclick="clearTexts()">Hapus Semua Teks</button>
+                </div>
+
+                <div class="tool-group">
+                    <h3 class="hd-badge">✨ FITUR HD</h3>
+                    <button class="btn-hd" onclick="enhanceHD()">HD Enhance</button>
+                    <button class="btn-hd" onclick="upscale2x()">Upscale 2x</button>
+                </div>
+
+                <div class="tool-group">
+                    <h3>🎨 FILTER CEPAT</h3>
+                    <button onclick="applyFilter('none')">Original</button>
+                    <button onclick="applyFilter('grayscale(1)')">Hitam Putih</button>
+                    <button onclick="applyFilter('sepia(1)')">Sepia</button>
+                    <button onclick="applyFilter('invert(1)')">Negatif</button>
+                </div>
+
+                <div class="tool-group">
+                    <h3>⚙️ PENGATURAN</h3>
+                    <label>Kecerahan</label>
+                    <input type="range" id="brightness" min="0" max="200" value="100" oninput="updateFilters()">
+                    <label>Kontras</label>
+                    <input type="range" id="contrast" min="0" max="200" value="100" oninput="updateFilters()">
+                    <label>Saturasi</label>
+                    <input type="range" id="saturate" min="0" max="200" value="100" oninput="updateFilters()">
+                    <label>Blur</label>
+                    <input type="range" id="blur" min="0" max="10" value="0" oninput="updateFilters()">
+                    <label>Ketajaman</label>
+                    <input type="range" id="sharpen" min="0" max="10" value="0" oninput="updateFilters()">
+                </div>
+
+                <div class="tool-group">
+                    <h3>🔄 AKSI</h3>
+                    <button onclick="rotate()">Putar 90°</button>
+                    <button onclick="flip()">Balik Horizontal</button>
+                    <button onclick="reset()">Reset Semua</button>
+                </div>
+
+                <button class="btn-download" onclick="download()">⬇️ DOWNLOAD HD</button>
+            </div>
+
+            <div class="preview" id="previewBox">
+                <canvas id="canvas"></canvas>
+                <div class="crop-overlay" id="cropOverlay"></div>
+                <p style="color:#666; font-size:12px; margin-top:10px;">Tip: Klik & drag teks untuk memindahkan</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('2d');
+let img = new Image();
+let originalImg = new Image();
+let rotation = 0;
+let flipH = 1;
+
+// Text system
+let texts = [];
+let selectedText = null;
+let dragging = false;
+let textBold = false;
+let textShadow = true;
+
+// Crop system
+let cropActive = false;
+let cropStartX = null, cropStartY = null, cropEndX = null, cropEndY = null;
+let cropOverlay = document.getElementById('cropOverlay');
+
+// Upload file handler
+document.getElementById('fileInput').addEventListener('change', function(e){
+    let file = e.target.files[0];
+    if(!file) return;
+    
+    let reader = new FileReader();
+    reader.onload = function(event){
+        originalImg.onload = function(){
+            img.src = originalImg.src;
+            img.onload = function(){
+                canvas.width = img.width;
+                canvas.height = img.height;
+                draw();
+                document.getElementById('uploadBox').style.display = 'none';
+                document.getElementById('editor').style.display = 'grid';
+            }
+        }
+        originalImg.src = event.target.result;
+    }
+    reader.readAsDataURL(file);
+});
+
+function draw(){
+    if(!canvas.width || !canvas.height) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.save();
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate(rotation * Math.PI / 180);
+    ctx.scale(flipH, 1);
+    ctx.drawImage(img, -img.width/2, -img.height/2);
+    ctx.restore();
+
+    // Draw all texts
+    texts.forEach((t, idx) => {
+        ctx.font = `${t.bold ? 'bold ' : ''}${t.size}px ${t.font}`;
+        ctx.fillStyle = t.color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        if(t.shadow){
+            ctx.shadowColor = 'rgba(0,0,0,0.7)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+        } else {
+            ctx.shadowColor = 'transparent';
+        }
+        
+        ctx.fillText(t.text, t.x, t.y);
+        ctx.shadowColor = 'transparent';
+        
+        // Highlight selected text
+        if(idx === selectedText){
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(t.x - t.size, t.y - t.size/2, t.size * 2, t.size);
+        }
+    });
+}
+
+// CROP FUNCTIONS
+function cropSquare(){
+    let size = Math.min(canvas.width, canvas.height);
+    let x = (canvas.width - size) / 2;
+    let y = (canvas.height - size) / 2;
+    doCrop(x, y, size, size);
+}
+
+function cropRatio(w, h){
+    let canvasRatio = canvas.width / canvas.height;
+    let targetRatio = w / h;
+    let newW, newH, x, y;
+
+    if(canvasRatio > targetRatio){
+        newH = canvas.height;
+        newW = newH * targetRatio;
+        x = (canvas.width - newW) / 2;
+        y = 0;
+    } else {
+        newW = canvas.width;
+        newH = newW / targetRatio;
+        x = 0;
+        y = (canvas.height - newH) / 2;
+    }
+    doCrop(x, y, newW, newH);
+}
+
+function enableCustomCrop(){
+    cropActive = true;
+    canvas.style.cursor = 'crosshair';
+    alert('Mode Crop Aktif! Klik & drag di gambar untuk pilih area');
+}
+
+function doCrop(x, y, w, h){
+    if(w <= 0 || h <= 0) return;
+    
+    let tempCanvas = document.createElement('canvas');
+    let tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = w;
+    tempCanvas.height = h;
+    tempCtx.drawImage(canvas, x, y, w, h, 0, 0, w, h);
+
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(tempCanvas, 0, 0);
+
+    // Reset text positions ke center
+    texts.forEach(t => {
+        t.x = w / 2;
+        t.y = h / 2;
+    });
+    
+    draw();
+    cropActive = false;
+    canvas.style.cursor = 'crosshair';
+}
+
+function applyCrop(){
+    if(cropEndX && cropEndY && cropStartX && cropStartY){
+        let x = Math.min(cropStartX, cropEndX);
+        let y = Math.min(cropStartY, cropEndY);
+        let w = Math.abs(cropStartX - cropEndX);
+        let h = Math.abs(cropStartY - cropEndY);
+        
+        if(w > 10 && h > 10){
+            doCrop(x, y, w, h);
+            cropOverlay.style.display = 'none';
+            cropStartX = null;
+            cropStartY = null;
+            cropEndX = null;
+            cropEndY = null;
+        } else {
+            alert('Pilih area yang lebih besar!');
+        }
+    }
+}
+
+// Canvas event listeners
+canvas.addEventListener('mousedown', (e) => {
+    if(!img.src) return;
+    
+    let rect = canvas.getBoundingClientRect();
+    let x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    let y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    if(cropActive){
+        cropStartX = x;
+        cropStartY = y;
+    } else {
+        // Text drag - improved hitbox
+        selectedText = null;
+        texts.forEach((t, i) => {
+            if(Math.abs(x - t.x) < t.size * 1.5 && Math.abs(y - t.y) < t.size * 1.5){
+                selectedText = i;
+                dragging = true;
+            }
+        });
+    }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if(!img.src) return;
+    
+    let rect = canvas.getBoundingClientRect();
+    let x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    let y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    if(cropActive && cropStartX !== null){
+        cropEndX = x;
+        cropEndY = y;
+
+        cropOverlay.style.display = 'block';
+        cropOverlay.style.left = Math.min(cropStartX, cropEndX) + 'px';
+        cropOverlay.style.top = Math.min(cropStartY, cropEndY) + 'px';
+        cropOverlay.style.width = Math.abs(cropStartX - cropEndX) + 'px';
+        cropOverlay.style.height = Math.abs(cropStartY - cropEndY) + 'px';
+    }
+    else if(dragging && selectedText !== null){
+        texts[selectedText].x = x;
+        texts[selectedText].y = y;
+        draw();
+    }
+});
+
+canvas.addEventListener('mouseup', () => {
+    dragging = false;
+});
+
+canvas.addEventListener('mouseout', () => {
+    dragging = false;
+});
+
+// TEXT FUNCTIONS
+function toggleBold(){
+    textBold = !textBold;
+}
+
+function toggleShadow(){
+    textShadow = !textShadow;
+}
+
+function addText(){
+    let text = document.getElementById('textInput').value;
+    if(!text.trim()) return alert('Masukkan teks terlebih dahulu!');
+    
+    texts.push({
+        text: text,
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        size: parseInt(document.getElementById('textSize').value),
+        color: document.getElementById('textColor').value,
+        font: document.getElementById('textFont').value,
+        bold: textBold,
+        shadow: textShadow
+    });
+    draw();
+}
+
+function clearTexts(){
+    texts = [];
+    draw();
+}
+
+// FILTER FUNCTIONS
+function updateFilters(){
+    let b = document.getElementById('brightness').value;
+    let c = document.getElementById('contrast').value;
+    let s = document.getElementById('saturate').value;
+    let bl = document.getElementById('blur').value;
+    let sh = document.getElementById('sharpen').value;
+    
+    canvas.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) blur(${bl}px)`;
+}
+
+function applyFilter(filter){
+    canvas.style.filter = filter;
+    document.getElementById('brightness').value = 100;
+    document.getElementById('contrast').value = 100;
+    document.getElementById('saturate').value = 100;
+    document.getElementById('blur').value = 0;
+    document.getElementById('sharpen').value = 0;
+}
+
+// HD FUNCTIONS
+function enhanceHD(){
+    document.getElementById('brightness').value = 110;
+    document.getElementById('contrast').value = 120;
+    document.getElementById('saturate').value = 115;
+    updateFilters();
+}
+
+function upscale2x(){
+    let tempCanvas = document.createElement('canvas');
+    let tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = canvas.width * 2;
+    tempCanvas.height = canvas.height * 2;
+    tempCtx.imageSmoothingEnabled = true;
+    tempCtx.imageSmoothingQuality = 'high';
+    tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+    
+    canvas.width = tempCanvas.width;
+    canvas.height = tempCanvas.height;
+    ctx.drawImage(tempCanvas, 0, 0);
+    
+    // Scale text
+    texts.forEach(t => { 
+        t.x *= 2; 
+        t.y *= 2; 
+        t.size *= 2; 
+    });
+    draw();
+}
+
+// TRANSFORM FUNCTIONS
+function rotate(){
+    rotation += 90;
+    if(rotation >= 360) rotation = 0;
+    draw();
+}
+
+function flip(){
+    flipH *= -1;
+    draw();
+}
+
+function reset(){
+    rotation = 0;
+    flipH = 1;
+    texts = [];
+    img.src = originalImg.src;
+    canvas.width = img.width;
+    canvas.height = img.height;
+    applyFilter('none');
+    document.getElementById('brightness').value = 100;
+    document.getElementById('contrast').value = 100;
+    document.getElementById('saturate').value = 100;
+    document.getElementById('blur').value = 0;
+    document.getElementById('sharpen').value = 0;
+    draw();
+}
+
+// DOWNLOAD FUNCTION
+function download(){
+    if(!canvas.width) return alert('Upload gambar terlebih dahulu!');
+    
+    let link = document.createElement('a');
+    link.download = 'vorlex-editor-' + Date.now() + '.png';
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+}
+</script>
+
+</body>
+</html>
