@@ -3,168 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VORLEX EDITOR HD - Edit Foto + Crop + Teks</title>
+<title>VORLEX EDITOR HD - Editor Foto Online Gratis</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
     body { background: #0f0f1a; color: white; }
-
-    header {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        padding: 15px 20px;
-        text-align: center;
-    }
+    header { background: linear-gradient(90deg, #667eea, #764ba2); padding: 15px 20px; text-align: center; }
     header h1 { font-size: 24px; letter-spacing: 2px; }
-
-    .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
-
-    .upload-box {
-        background: #1a1a2e;
-        padding: 40px;
-        border-radius: 15px;
-        text-align: center;
-        border: 2px dashed #667eea;
-        margin-bottom: 20px;
-    }
-    .upload-box input { display: none; }
-    .btn-upload {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        color: white;
-        padding: 15px 30px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        border: none;
-        font-size: 16px;
-    }
-
-    .editor {
-        display: none;
-        grid-template-columns: 280px 1fr;
-        gap: 20px;
-    }
-    @media(max-width: 900px){
-        .editor { grid-template-columns: 1fr; }
-    }
-    .tools {
-        background: #1a1a2e;
-        padding: 20px;
-        border-radius: 15px;
-        height: fit-content;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-    .tool-group { margin-bottom: 20px; }
-    .tool-group h3 { color: #667eea; font-size: 14px; margin-bottom: 10px; }
-    .tool-group input[type=range],.tool-group input[type=text],.tool-group select,.tool-group input[type=color] {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 8px;
-        background: #2a2a3e;
-        border: 1px solid #3a3a4e;
-        color: white;
-        border-radius: 6px;
-    }
-    .tool-group button {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 8px;
-        background: #2a2a3e;
-        border: none;
-        color: white;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 500;
-    }
-    .tool-group button:hover { background: #667eea; }
-    .btn-hd { background: linear-gradient(90deg, #f59e0b, #ef4444)!important; }
-    .btn-text { background: linear-gradient(90deg, #06b6d4, #3b82f6)!important; }
-    .btn-crop { background: linear-gradient(90deg, #ec4899, #a855f7)!important; }
-
-    .row { display: flex; gap: 8px; }
-    .row > * { flex: 1; }
-
-    .preview {
-        background: #1a1a2e;
-        padding: 20px;
-        border-radius: 15px;
-        text-align: center;
-        overflow: auto;
-        position: relative;
-    }
-    #canvasContainer {
-        position: relative;
-        display: inline-block;
-        margin: 0 auto;
-    }
-    #canvas { 
-        max-width: 100%; 
-        border-radius: 10px; 
-        cursor: crosshair;
-        display: block;
-    }
-    .crop-overlay { 
-        position: absolute; 
-        border: 2px dashed #fff; 
-        background: rgba(0,0,0,0.3); 
-        display: none; 
-        pointer-events: none;
-        box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
-    }
-    .hint-box {
-        background: #2a2a3e;
-        padding: 10px;
-        border-radius: 8px;
-        margin-top: 10px;
-        font-size: 12px;
-        color: #aaa;
-    }
-
-    .btn-download {
-        width: 100%;
-        padding: 15px;
-        background: #22c55e;
-        border: none;
-        color: white;
-        font-weight: bold;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 16px;
-        margin-top: 15px;
-    }
-    .hd-badge { color: #fbbf24; font-size: 12px; }
-    .text-badge { color: #38bdf8; font-size: 12px; }
-    .crop-badge { color: #f472b6; font-size: 12px; }
-    .undo-redo {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 15px;
-    }
-    .undo-redo button {
-        flex: 1;
-    }
+   .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+   .upload-box { background: #1a1a2e; padding: 40px; border-radius: 15px; text-align: center; border: 2px dashed #667eea; margin-bottom: 20px; }
+   .upload-box input { display: none; }
+   .btn-upload { background: linear-gradient(90deg, #667eea, #764ba2); color: white; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-weight: bold; border: none; font-size: 16px; }
+   .editor { display: none; grid-template-columns: 280px 1fr; gap: 20px; }
+    @media(max-width: 900px){.editor { grid-template-columns: 1fr; } }
+   .tools { background: #1a1a2e; padding: 20px; border-radius: 15px; height: fit-content; max-height: 90vh; overflow-y: auto; }
+   .tool-group { margin-bottom: 20px; }
+   .tool-group h3 { color: #667eea; font-size: 14px; margin-bottom: 10px; }
+   .tool-group input[type=range],.tool-group input[type=text],.tool-group select,.tool-group input[type=color] { width: 100%; padding: 8px; margin-bottom: 8px; background: #2a2a3e; border: 1px solid #3a3a4e; color: white; border-radius: 6px; }
+   .tool-group button { width: 100%; padding: 10px; margin-bottom: 8px; background: #2a2a3e; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 500; }
+   .tool-group button:hover { background: #667eea; }
+   .btn-hd { background: linear-gradient(90deg, #f59e0b, #ef4444)!important; }
+   .btn-text { background: linear-gradient(90deg, #06b6d4, #3b82f6)!important; }
+   .btn-crop { background: linear-gradient(90deg, #ec4899, #a855f7)!important; }
+   .row { display: flex; gap: 8px; }
+   .row > * { flex: 1; }
+   .preview { background: #1a1a2e; padding: 20px; border-radius: 15px; text-align: center; overflow: auto; position: relative; }
+    #canvas { max-width: 100%; border-radius: 10px; cursor: crosshair; }
+   .crop-overlay { position: absolute; border: 2px dashed #fff; background: rgba(0,0,0,0.3); display: none; pointer-events: none; }
+   .btn-download { width: 100%; padding: 15px; background: #22c55e; border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 16px; margin-top: 15px; }
+   .hd-badge { color: #fbbf24; font-size: 12px; }
+   .text-badge { color: #38bdf8; font-size: 12px; }
+   .crop-badge { color: #f472b6; font-size: 12px; }
 </style>
 </head>
 <body>
     <header>
         <h1>⚡ VORLEX EDITOR HD</h1>
-        <p>Edit Foto + Crop + Teks Online Gratis</p>
+        <p>Edit Foto + Crop + Teks Online Gratis - Tanpa Watermark</p>
     </header>
 
     <div class="container">
         <div class="upload-box" id="uploadBox">
             <h2>Pilih Foto Kamu</h2>
-            <p style="color:#aaa; margin: 15px 0;">JPG, PNG, WEBP - Max HD</p>
+            <p style="color:#aaa; margin: 15px 0;">JPG, PNG, WEBP</p>
             <label for="fileInput" class="btn-upload">UPLOAD GAMBAR</label>
             <input type="file" id="fileInput" accept="image/*">
         </div>
 
         <div class="editor" id="editor">
             <div class="tools">
-                <div class="tool-group undo-redo">
-                    <button onclick="undo()">↶ Undo</button>
-                    <button onclick="redo()">↷ Redo</button>
-                </div>
-
                 <div class="tool-group">
                     <h3 class="crop-badge">✂️ CROP GAMBAR</h3>
                     <button class="btn-crop" onclick="cropSquare()">Crop Persegi 1:1</button>
@@ -188,8 +74,8 @@
                         <option value="Times New Roman">Times</option>
                     </select>
                     <div class="row">
-                        <button onclick="toggleTextBold()">B</button>
-                        <button onclick="toggleTextShadow()">Shadow</button>
+                        <button onclick="textBold =!textBold; draw()">B</button>
+                        <button onclick="textShadow =!textShadow; draw()">Shadow</button>
                     </div>
                     <button class="btn-text" onclick="addText()">Tambah Teks Baru</button>
                     <button onclick="clearTexts()">Hapus Semua Teks</button>
@@ -230,123 +116,35 @@
                     <button onclick="reset()">Reset Semua</button>
                 </div>
 
-                <button class="btn-download" onclick="download()">📥 DOWNLOAD HD</button>
+                <button class="btn-download" onclick="download()">DOWNLOAD HD PNG</button>
             </div>
 
             <div class="preview" id="previewBox">
-                <div id="canvasContainer">
-                    <canvas id="canvas"></canvas>
-                    <div class="crop-overlay" id="cropOverlay"></div>
-                </div>
-                <div class="hint-box">
-                    💡 Klik & drag teks untuk memindahkan | Fitur undo/redo tersedia
-                </div>
+                <canvas id="canvas"></canvas>
+                <div class="crop-overlay" id="cropOverlay"></div>
+                <p style="color:#666; font-size:12px; margin-top:10px;">Tip: Klik & drag teks untuk memindahkan</p>
             </div>
         </div>
     </div>
 
 <script>
 let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d', { willReadFrequently: true });
+let ctx = canvas.getContext('2d');
 let img = new Image();
 let originalImg = new Image();
 let rotation = 0;
 let flipH = 1;
-
-// Text system
 let texts = [];
 let selectedText = null;
 let dragging = false;
 let textBold = false;
 let textShadow = true;
-
-// Crop system
 let cropActive = false;
 let cropStartX, cropStartY, cropEndX, cropEndY;
 let cropOverlay = document.getElementById('cropOverlay');
-let canvasContainer = document.getElementById('canvasContainer');
-
-// History for undo/redo
-let history = [];
-let historyStep = -1;
-const MAX_HISTORY = 20;
-
-// Helper: Save state to history
-function saveHistory() {
-    historyStep++;
-    if (historyStep < history.length) {
-        history.length = historyStep;
-    }
-    history.push(serializeState());
-    if (history.length > MAX_HISTORY) {
-        history.shift();
-        historyStep--;
-    }
-}
-
-// Helper: Serialize current state
-function serializeState() {
-    return {
-        imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height,
-        rotation: rotation,
-        flipH: flipH,
-        texts: JSON.parse(JSON.stringify(texts)),
-        filters: {
-            brightness: document.getElementById('brightness').value,
-            contrast: document.getElementById('contrast').value,
-            saturate: document.getElementById('saturate').value,
-            blur: document.getElementById('blur').value,
-            sharpen: document.getElementById('sharpen').value
-        }
-    };
-}
-
-// Helper: Restore state from history
-function restoreState(state) {
-    canvas.width = state.canvasWidth;
-    canvas.height = state.canvasHeight;
-    ctx.putImageData(state.imageData, 0, 0);
-    rotation = state.rotation;
-    flipH = state.flipH;
-    texts = JSON.parse(JSON.stringify(state.texts));
-    document.getElementById('brightness').value = state.filters.brightness;
-    document.getElementById('contrast').value = state.filters.contrast;
-    document.getElementById('saturate').value = state.filters.saturate;
-    document.getElementById('blur').value = state.filters.blur;
-    document.getElementById('sharpen').value = state.filters.sharpen;
-    updateFilters();
-}
-
-function undo() {
-    if (historyStep > 0) {
-        historyStep--;
-        restoreState(history[historyStep]);
-    }
-}
-
-function redo() {
-    if (historyStep < history.length - 1) {
-        historyStep++;
-        restoreState(history[historyStep]);
-    }
-}
-
-function toggleTextBold() {
-    textBold = !textBold;
-    draw();
-}
-
-function toggleTextShadow() {
-    textShadow = !textShadow;
-    draw();
-}
 
 document.getElementById('fileInput').addEventListener('change', function(e){
     let file = e.target.files[0];
-    if (!file) return;
-    
     let reader = new FileReader();
     reader.onload = function(event){
         originalImg.src = event.target.result;
@@ -354,12 +152,6 @@ document.getElementById('fileInput').addEventListener('change', function(e){
         img.onload = function(){
             canvas.width = img.width;
             canvas.height = img.height;
-            history = [];
-            historyStep = -1;
-            rotation = 0;
-            flipH = 1;
-            texts = [];
-            saveHistory();
             draw();
             document.getElementById('uploadBox').style.display = 'none';
             document.getElementById('editor').style.display = 'grid';
@@ -372,330 +164,54 @@ function draw(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    
-    // Draw image with transforms
     ctx.save();
     ctx.translate(canvas.width/2, canvas.height/2);
     ctx.rotate(rotation * Math.PI / 180);
     ctx.scale(flipH, 1);
     ctx.drawImage(img, -img.width/2, -img.height/2);
     ctx.restore();
-
-    // Draw all texts (without transforms for accurate positioning)
-    texts.forEach((t, index) => {
-        let fontSize = t.size;
-        let fontWeight = t.bold ? 'bold ' : '';
-        ctx.font = `${fontWeight}${fontSize}px ${t.font}`;
+    texts.forEach(t => {
+        ctx.font = `${t.bold? 'bold ' : ''} ${t.size}px ${t.font}`;
         ctx.fillStyle = t.color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
         if(t.shadow){
             ctx.shadowColor = 'rgba(0,0,0,0.7)';
             ctx.shadowBlur = 8;
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;
-        } else {
-            ctx.shadowColor = 'transparent';
         }
-        
         ctx.fillText(t.text, t.x, t.y);
         ctx.shadowColor = 'transparent';
-        
-        // Draw selection box if selected
-        if(selectedText === index) {
-            ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(t.x - fontSize, t.y - fontSize/2, fontSize*2, fontSize);
-        }
     });
 }
 
-// CROP FUNCTIONS
-function cropSquare(){
-    let size = Math.min(img.width, img.height);
-    let x = (img.width - size) / 2;
-    let y = (img.height - size) / 2;
-    doCrop(x, y, size, size);
-    saveHistory();
-}
+function cropSquare(){ let size = Math.min(canvas.width, canvas.height); let x = (canvas.width - size) / 2; let y = (canvas.height - size) / 2; doCrop(x, y, size, size); }
+function cropRatio(w, h){ let canvasRatio = canvas.width / canvas.height; let targetRatio = w / h; let newW, newH, x, y; if(canvasRatio > targetRatio){ newH = canvas.height; newW = newH * targetRatio; x = (canvas.width - newW) / 2; y = 0; } else { newW = canvas.width; newH = newW / targetRatio; x = 0; y = (canvas.height - newH) / 2; } doCrop(x, y, newW, newH); }
+function enableCustomCrop(){ cropActive = true; alert('Mode Crop Aktif! Klik & drag di gambar untuk pilih area'); }
+function doCrop(x, y, w, h){ let tempCanvas = document.createElement('canvas'); let tempCtx = tempCanvas.getContext('2d'); tempCanvas.width = w; tempCanvas.height = h; tempCtx.drawImage(canvas, x, y, w, h, 0, 0, w, h); canvas.width = w; canvas.height = h; ctx.drawImage(tempCanvas, 0, 0); texts = []; draw(); }
+function applyCrop(){ if(cropEndX && cropEndY){ let x = Math.min(cropStartX, cropEndX); let y = Math.min(cropStartY, cropEndY); let w = Math.abs(cropStartX - cropEndX); let h = Math.abs(cropStartY - cropEndY); doCrop(x, y, w, h); cropOverlay.style.display = 'none'; cropActive = false; } }
 
-function cropRatio(w, h){
-    let imgRatio = img.width / img.height;
-    let targetRatio = w / h;
-    let newW, newH, x, y;
-
-    if(imgRatio > targetRatio){
-        newH = img.height;
-        newW = newH * targetRatio;
-        x = (img.width - newW) / 2;
-        y = 0;
-    } else {
-        newW = img.width;
-        newH = newW / targetRatio;
-        x = 0;
-        y = (img.height - newH) / 2;
-    }
-    doCrop(x, y, newW, newH);
-    saveHistory();
-}
-
-function enableCustomCrop(){
-    cropActive = true;
-    alert('Mode Crop Aktif! Klik & drag di gambar untuk pilih area');
-    canvas.style.cursor = 'crosshair';
-}
-
-function doCrop(x, y, w, h){
-    let tempCanvas = document.createElement('canvas');
-    let tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = w;
-    tempCanvas.height = h;
-    tempCtx.drawImage(img, x, y, w, h, 0, 0, w, h);
-
-    img.src = tempCanvas.toDataURL();
-    img.onload = function() {
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(img, 0, 0);
-        
-        // Scale text positions proportionally
-        texts.forEach(t => {
-            t.x = t.x * (w / (img.width + w - w)) || canvas.width / 2;
-            t.y = t.y * (h / (img.height + h - h)) || canvas.height / 2;
-        });
-        
-        draw();
-        tempCanvas = null;
-        tempCtx = null;
-    };
-}
-
-function applyCrop(){
-    if(cropEndX && cropEndY && cropStartX && cropStartY){
-        let x = Math.min(cropStartX, cropEndX);
-        let y = Math.min(cropStartY, cropEndY);
-        let w = Math.abs(cropStartX - cropEndX);
-        let h = Math.abs(cropStartY - cropEndY);
-        
-        if(w > 0 && h > 0) {
-            doCrop(x, y, w, h);
-            cropOverlay.style.display = 'none';
-            cropActive = false;
-            canvas.style.cursor = 'default';
-            saveHistory();
-        }
-    }
-}
-
-// Mouse/Touch events
 canvas.addEventListener('mousedown', (e) => {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (e.clientX - rect.left) * scaleX;
-    let y = (e.clientY - rect.top) * scaleY;
-    
-    if(cropActive){
-        cropStartX = x;
-        cropStartY = y;
-    } else {
-        // Check text click
-        selectedText = null;
-        texts.forEach((t, i) => {
-            let dist = Math.sqrt(Math.pow(x - t.x, 2) + Math.pow(y - t.y, 2));
-            if(dist < t.size * 1.5){
-                selectedText = i;
-                dragging = true;
-            }
-        });
-    }
+    if(cropActive){ let rect = canvas.getBoundingClientRect(); cropStartX = (e.clientX - rect.left) * (canvas.width / rect.width); cropStartY = (e.clientY - rect.top) * (canvas.height / rect.height); }
+    else { let rect = canvas.getBoundingClientRect(); let x = (e.clientX - rect.left) * (canvas.width / rect.width); let y = (e.clientY - rect.top) * (canvas.height / rect.height); texts.forEach((t, i) => { if(Math.abs(x - t.x) < t.size*2 && Math.abs(y - t.y) < t.size){ selectedText = i; dragging = true; } }); }
 });
-
 canvas.addEventListener('mousemove', (e) => {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (e.clientX - rect.left) * scaleX;
-    let y = (e.clientY - rect.top) * scaleY;
-    
-    if(cropActive && cropStartX){
-        cropEndX = x;
-        cropEndY = y;
-        cropOverlay.style.display = 'block';
-        cropOverlay.style.left = Math.min(cropStartX, cropEndX) + 'px';
-        cropOverlay.style.top = Math.min(cropStartY, cropEndY) + 'px';
-        cropOverlay.style.width = Math.abs(cropStartX - cropEndX) + 'px';
-        cropOverlay.style.height = Math.abs(cropStartY - cropEndY) + 'px';
-    }
-    else if(dragging && selectedText !== null){
-        texts[selectedText].x = Math.max(0, Math.min(canvas.width, x));
-        texts[selectedText].y = Math.max(0, Math.min(canvas.height, y));
-        draw();
-    }
+    if(cropActive && cropStartX){ let rect = canvas.getBoundingClientRect(); cropEndX = (e.clientX - rect.left) * (canvas.width / rect.width); cropEndY = (e.clientY - rect.top) * (canvas.height / rect.height); cropOverlay.style.display = 'block'; cropOverlay.style.left = Math.min(cropStartX, cropEndX) + 'px'; cropOverlay.style.top = Math.min(cropStartY, cropEndY) + 'px'; cropOverlay.style.width = Math.abs(cropStartX - cropEndX) + 'px'; cropOverlay.style.height = Math.abs(cropStartY - cropEndY) + 'px'; }
+    else if(dragging && selectedText!== null){ let rect = canvas.getBoundingClientRect(); texts[selectedText].x = (e.clientX - rect.left) * (canvas.width / rect.width); texts[selectedText].y = (e.clientY - rect.top) * (canvas.height / rect.height); draw(); }
 });
+canvas.addEventListener('mouseup', () => { dragging = false; selectedText = null; cropStartX = null; });
 
-canvas.addEventListener('mouseup', () => {
-    dragging = false;
-    if(selectedText !== null) {
-        saveHistory();
-    }
-    selectedText = null;
-    cropStartX = null;
-    cropStartY = null;
-});
-
-// Touch events for mobile
-canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    let touch = e.touches[0];
-    let mouseEvent = new MouseEvent('mousedown', {
-        clientX: touch.clientX,
-        clientY: touch.clientY
-    });
-    canvas.dispatchEvent(mouseEvent);
-});
-
-canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    let touch = e.touches[0];
-    let mouseEvent = new MouseEvent('mousemove', {
-        clientX: touch.clientX,
-        clientY: touch.clientY
-    });
-    canvas.dispatchEvent(mouseEvent);
-});
-
-canvas.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    let mouseEvent = new MouseEvent('mouseup', {});
-    canvas.dispatchEvent(mouseEvent);
-});
-
-function updateFilters(){
-    let b = document.getElementById('brightness').value;
-    let c = document.getElementById('contrast').value;
-    let s = document.getElementById('saturate').value;
-    let bl = document.getElementById('blur').value;
-    let sh = document.getElementById('sharpen').value;
-    canvas.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) blur(${bl}px)`;
-}
-
-function applyFilter(filter){
-    canvas.style.filter = filter;
-    document.getElementById('brightness').value = 100;
-    document.getElementById('contrast').value = 100;
-    document.getElementById('saturate').value = 100;
-    document.getElementById('blur').value = 0;
-    document.getElementById('sharpen').value = 0;
-    saveHistory();
-}
-
-function addText(){
-    let text = document.getElementById('textInput').value;
-    if(!text) return;
-    texts.push({
-        text: text,
-        x: canvas.width / 2,
-        y: canvas.height / 2,
-        size: parseInt(document.getElementById('textSize').value),
-        color: document.getElementById('textColor').value,
-        font: document.getElementById('textFont').value,
-        bold: textBold,
-        shadow: textShadow
-    });
-    draw();
-    saveHistory();
-}
-
-function clearTexts(){
-    texts = [];
-    draw();
-    saveHistory();
-}
-
-function enhanceHD(){
-    document.getElementById('brightness').value = 110;
-    document.getElementById('contrast').value = 120;
-    document.getElementById('saturate').value = 115;
-    document.getElementById('sharpen').value = 5;
-    updateFilters();
-    saveHistory();
-}
-
-function upscale2x(){
-    let tempCanvas = document.createElement('canvas');
-    let tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = canvas.width * 2;
-    tempCanvas.height = canvas.height * 2;
-    tempCtx.imageSmoothingEnabled = true;
-    tempCtx.imageSmoothingQuality = 'high';
-    tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
-    
-    canvas.width = tempCanvas.width;
-    canvas.height = tempCanvas.height;
-    ctx.drawImage(tempCanvas, 0, 0);
-    
-    // Scale text and image properly
-    let tempImg = new Image();
-    tempImg.src = img.src;
-    tempImg.onload = function() {
-        img = tempImg;
-        texts.forEach(t => { 
-            t.x *= 2; 
-            t.y *= 2; 
-            t.size = Math.round(t.size * 2); 
-        });
-        draw();
-    };
-    
-    tempCanvas = null;
-    tempCtx = null;
-    saveHistory();
-}
-
-function rotate(){
-    rotation += 90;
-    if(rotation >= 360) rotation = 0;
-    draw();
-    saveHistory();
-}
-
-function flip(){
-    flipH *= -1;
-    draw();
-    saveHistory();
-}
-
-function reset(){
-    rotation = 0;
-    flipH = 1;
-    texts = [];
-    img.src = originalImg.src;
-    img.onload = function() {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        applyFilter('none');
-        document.getElementById('brightness').value = 100;
-        document.getElementById('contrast').value = 100;
-        document.getElementById('saturate').value = 100;
-        document.getElementById('blur').value = 0;
-        document.getElementById('sharpen').value = 0;
-        history = [];
-        historyStep = -1;
-        draw();
-        saveHistory();
-    };
-}
-
-function download(){
-    let link = document.createElement('a');
-    link.download = 'vorlex-hd.png';
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
-    link = null;
-}
+function updateFilters(){ let b = document.getElementById('brightness').value; let c = document.getElementById('contrast').value; let s = document.getElementById('saturate').value; let bl = document.getElementById('blur').value; let sh = document.getElementById('sharpen').value; canvas.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) blur(${bl}px) contrast(${100 + sh*10}%)`; }
+function applyFilter(filter){ canvas.style.filter = filter; document.getElementById('brightness').value = 100; document.getElementById('contrast').value = 100; document.getElementById('saturate').value = 100; document.getElementById('blur').value = 0; document.getElementById('sharpen').value = 0; }
+function addText(){ let text = document.getElementById('textInput').value; if(!text) return; texts.push({ text: text, x: canvas.width / 2, y: canvas.height / 2, size: parseInt(document.getElementById('textSize').value), color: document.getElementById('textColor').value, font: document.getElementById('textFont').value, bold: textBold, shadow: textShadow }); draw(); }
+function clearTexts(){ texts = []; draw(); }
+function enhanceHD(){ document.getElementById('brightness').value = 110; document.getElementById('contrast').value = 120; document.getElementById('saturate').value = 115; document.getElementById('sharpen').value = 5; updateFilters(); }
+function upscale2x(){ let tempCanvas = document.createElement('canvas'); let tempCtx = tempCanvas.getContext('2d'); tempCanvas.width = canvas.width * 2; tempCanvas.height = canvas.height * 2; tempCtx.imageSmoothingEnabled = true; tempCtx.imageSmoothingQuality = 'high'; tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height); canvas.width = tempCanvas.width; canvas.height = tempCanvas.height; ctx.drawImage(tempCanvas, 0, 0); texts.forEach(t => { t.x *= 2; t.y *= 2; t.size *= 2; }); draw(); }
+function rotate(){ rotation += 90; if(rotation >= 360) rotation = 0; draw(); }
+function flip(){ flipH *= -1; draw(); }
+function reset(){ rotation = 0; flipH = 1; texts = []; img.src = originalImg.src; canvas.width = img.width; canvas.height = img.height; applyFilter('none'); document.getElementById('brightness').value = 100; document.getElementById('contrast').value = 100; document.getElementById('saturate').value = 100; document.getElementById('blur').value = 0; document.getElementById('sharpen').value = 0; draw(); }
+function download(){ let link = document.createElement('a'); link.download = 'vorlex-hd.png'; link.href = canvas.toDataURL('image/png', 1.0); link.click(); }
 </script>
-
 </body>
 </html>
